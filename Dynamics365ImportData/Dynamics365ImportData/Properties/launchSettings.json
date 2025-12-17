@@ -1,0 +1,19 @@
+{
+  "profiles": {
+    "Export": {
+      "commandName": "Project"
+    },
+    "ExportFile": {
+      "commandLineArgs": "export-file",
+      "commandName": "Project"
+    },
+    "ExportPackage": {
+      "commandLineArgs": "export-package",
+      "commandName": "Project"
+    },
+    "ImportD365": {
+      "commandLineArgs": "import-d365",
+      "commandName": "Project"
+    }
+  }
+}
