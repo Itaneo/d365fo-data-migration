@@ -1,7 +1,21 @@
 {
   "permissions": {
     "allow": [
-      "Bash(gh repo create:*)"
+      "Bash(gh repo create:*)",
+      "Bash(git -C \"D:/d365fo-data-migration\" status)",
+      "Bash(git -C \"D:/d365fo-data-migration\" log --oneline -10)",
+      "Bash(git -C \"D:/d365fo-data-migration\" branch -a)",
+      "Bash(git -C \"D:/d365fo-data-migration\" remote -v)",
+      "Bash(git -C \"D:/d365fo-data-migration\" diff .claude/settings.local.json)",
+      "Bash(git checkout:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nAdd BMAD framework and AI tooling configuration\n\nAdd BMAD \\(Build, Manage, Architect, Design\\) framework files,\nClaude commands, Cursor configuration, and GitHub agent workflows\nto support AI-assisted development workflows.\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git push:*)",
+      "Bash(gh pr create --title \"Add BMAD framework and AI tooling configuration\" --body \"$\\(cat <<''EOF''\n## Summary\n- Add BMAD \\(Build, Manage, Architect, Design\\) framework files in `_bmad/` directory\n- Add Claude Code commands and agent workflow definitions in `.agent/`, `.claude/commands/`\n- Add Cursor IDE configuration in `.cursor/`\n- Add GitHub agent configurations in `.github/agents/`\n- 864 files providing AI-assisted development workflows, agents, and tooling support\n\n## Test plan\n- [ ] Verify BMAD workflows load correctly in Claude Code\n- [ ] Verify agent configurations are recognized by their respective tools\n- [ ] Confirm no sensitive data or credentials are included\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\nEOF\n\\)\")",
+      "mcp__plugin_github_github__merge_pull_request",
+      "Bash(git commit:*)",
+      "Bash(gh pr create:*)",
+      "WebSearch"
     ],
     "deny": [],
     "ask": []
