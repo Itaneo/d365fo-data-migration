@@ -1,0 +1,63 @@
+{
+  "command": "import",
+  "totalEntities": 3,
+  "succeeded": 2,
+  "failed": 1,
+  "entityResults": [
+    {
+      "entityName": "Customers",
+      "definitionGroupId": "CustomerImport",
+      "status": "Succeeded",
+      "recordsProcessed": 1500,
+      "recordsPerFile": 1000,
+      "partsCreated": 2,
+      "startTime": "2026-01-15T10:30:00Z",
+      "endTime": "2026-01-15T10:35:22Z",
+      "elapsedSeconds": 322,
+      "errors": []
+    },
+    {
+      "entityName": "Vendors",
+      "definitionGroupId": "VendorImport",
+      "status": "Succeeded",
+      "recordsProcessed": 800,
+      "recordsPerFile": 1000,
+      "partsCreated": 1,
+      "startTime": "2026-01-15T10:35:23Z",
+      "endTime": "2026-01-15T10:37:45Z",
+      "elapsedSeconds": 142,
+      "errors": []
+    },
+    {
+      "entityName": "Products",
+      "definitionGroupId": "ProductImport",
+      "status": "Failed",
+      "recordsProcessed": 0,
+      "recordsPerFile": 1000,
+      "partsCreated": 0,
+      "startTime": "2026-01-15T10:37:46Z",
+      "endTime": "2026-01-15T10:37:47Z",
+      "elapsedSeconds": 1,
+      "errors": [
+        {
+          "message": "Cannot connect to the configured data source. Verify the source configuration is correct.",
+          "errorCode": "CONN_FAILED",
+          "timestamp": "2026-01-15T10:37:47Z"
+        },
+        {
+          "message": "The query file references table 'dbo.ProductStaging' which does not exist in the source database.",
+          "errorCode": "TABLE_NOT_FOUND",
+          "timestamp": "2026-01-15T10:37:47Z"
+        }
+      ]
+    }
+  ],
+  "executionMetadata": {
+    "pipelineMode": "Package",
+    "outputDirectory": "C:\\output\\migrations\\2026-01-15",
+    "dependencyLevels": 2,
+    "maxParallelism": 4,
+    "runtimeVersion": "10.0.1",
+    "toolVersion": "1.0.0"
+  }
+}

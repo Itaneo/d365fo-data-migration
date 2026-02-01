@@ -1,0 +1,1 @@
+<?xml version="1.0" encoding="utf-8"?><Document><TestEntity IntField="42" StringField="Hello World" DateField="2026-01-15T14:30:00Z" EmptyField="" NullField="" SpecialChars="A &amp; B &lt; C &gt; D &quot;E&quot;" /><TestEntity IntField="99" StringField="Second Record" DateField="2026-06-30T00:00:00Z" EmptyField="not empty" NullField="" SpecialChars="Plain text" /></Document>
