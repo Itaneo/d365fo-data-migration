@@ -42,8 +42,36 @@ internal class MigrationPipelineService : IMigrationPipelineService
     {
         IXmlOutputFactory factory = ResolveFactory(mode);
 
-        // entityFilter is accepted for forward API compatibility; filtering logic is deferred to Story 3.1
-        var (parts, succeeded, failed) = await RunQueriesWithDependenciesAsync(factory, cancellationToken);
+        var queriesToProcess = _queries.SortedQueries;
+
+        if (entityFilter is { Length: > 0 })
+        {
+            var allEntityNames = queriesToProcess
+                .SelectMany(level => level)
+                .Select(q => q.EntityName)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            var invalidNames = entityFilter
+                .Where(name => !allEntityNames.Contains(name))
+                .ToList();
+
+            if (invalidNames.Count > 0)
+            {
+                throw new EntityValidationException(invalidNames, allEntityNames);
+            }
+
+            var filterSet = new HashSet<string>(entityFilter, StringComparer.OrdinalIgnoreCase);
+            queriesToProcess = queriesToProcess
+                .Select(level => level.Where(q => filterSet.Contains(q.EntityName)).ToList())
+                .Where(level => level.Count > 0)
+                .ToList();
+
+            _logger.LogInformation("Processing {Count} of {Total} entities: {EntityNames}",
+                filterSet.Count, allEntityNames.Count,
+                string.Join(", ", entityFilter));
+        }
+
+        var (parts, succeeded, failed) = await RunQueriesWithDependenciesAsync(factory, queriesToProcess, cancellationToken);
 
         return new CycleResult
         {
@@ -66,13 +94,13 @@ internal class MigrationPipelineService : IMigrationPipelineService
     }
 
     private async Task<(ConcurrentBag<IXmlOutputPart> parts, int succeeded, int failed)> RunQueriesWithDependenciesAsync(
-        IXmlOutputFactory factory, CancellationToken cancellationToken)
+        IXmlOutputFactory factory, List<List<SourceQueryItem>> queries, CancellationToken cancellationToken)
     {
         ConcurrentBag<IXmlOutputPart> parts = new();
         int totalSucceeded = 0;
         int totalFailed = 0;
 
-        foreach (List<SourceQueryItem> tasks in _queries.SortedQueries)
+        foreach (List<SourceQueryItem> tasks in queries)
         {
             ConcurrentBag<IXmlOutputPart> running = new();
             await Parallel.ForEachAsync(
