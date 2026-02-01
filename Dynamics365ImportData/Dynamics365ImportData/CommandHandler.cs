@@ -42,6 +42,11 @@ internal class CommandHandler
             _logger.LogError(ex, "Entity validation failed");
             return 2;
         }
+        catch (OperationCanceledException)
+        {
+            _logger.LogWarning("Export to file was canceled");
+            return 1;
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Export failed");
@@ -68,6 +73,11 @@ internal class CommandHandler
             _logger.LogError(ex, "Entity validation failed");
             return 2;
         }
+        catch (OperationCanceledException)
+        {
+            _logger.LogWarning("Export to package was canceled");
+            return 1;
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Export failed");
@@ -92,6 +102,11 @@ internal class CommandHandler
         {
             _logger.LogError(ex, "Entity validation failed");
             return 2;
+        }
+        catch (OperationCanceledException)
+        {
+            _logger.LogWarning("Import to Dynamics 365 was canceled");
+            return 1;
         }
         catch (Exception ex)
         {
