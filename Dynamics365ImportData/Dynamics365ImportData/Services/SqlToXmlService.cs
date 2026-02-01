@@ -5,7 +5,7 @@ using Dynamics365ImportData.XmlOutput;
 
 using Microsoft.Extensions.Logging;
 
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using System.Diagnostics;
 using System.Threading;
 

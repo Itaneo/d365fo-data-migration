@@ -2,7 +2,7 @@ namespace Dynamics365ImportData.Tests.Unit.Services;
 
 using Shouldly;
 
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 
 using Xunit;
 
@@ -12,7 +12,7 @@ public class SqlConnectionBehaviorTests
     public void SqlConnection_InvalidConnectionString_ThrowsExpectedException()
     {
         // Arrange & Act & Assert
-        // System.Data.SqlClient throws ArgumentException for truly malformed connection strings
+        // Microsoft.Data.SqlClient throws ArgumentException for truly malformed connection strings
         // with invalid key=value syntax
         Should.Throw<ArgumentException>(() =>
         {
@@ -29,8 +29,8 @@ public class SqlConnectionBehaviorTests
         // Act
         var builder = new SqlConnectionStringBuilder(connectionString);
 
-        // Assert -- verify System.Data.SqlClient connection string builder behavior
-        // This captures current .NET 8 baseline for comparison with Microsoft.Data.SqlClient
+        // Assert -- verify Microsoft.Data.SqlClient connection string builder behavior
+        // Baseline captured during Story 1.2 on .NET 8 with System.Data.SqlClient; confirmed identical on .NET 10 with Microsoft.Data.SqlClient
         builder.DataSource.ShouldBe("myserver");
         builder.InitialCatalog.ShouldBe("mydb");
         builder.UserID.ShouldBe("myuser");
