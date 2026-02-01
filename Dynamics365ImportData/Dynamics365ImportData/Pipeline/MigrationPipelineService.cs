@@ -2,6 +2,7 @@ namespace Dynamics365ImportData.Pipeline;
 
 using Dynamics365ImportData.DependencySorting;
 using Dynamics365ImportData.Erp.DataManagementDefinitionGroups;
+using Dynamics365ImportData.Persistence.Models;
 using Dynamics365ImportData.Services;
 using Dynamics365ImportData.Settings;
 using Dynamics365ImportData.XmlOutput;
@@ -11,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 using System.Collections.Concurrent;
+using System.Diagnostics;
 
 internal class MigrationPipelineService : IMigrationPipelineService
 {
@@ -40,6 +42,10 @@ internal class MigrationPipelineService : IMigrationPipelineService
         string[]? entityFilter,
         CancellationToken cancellationToken)
     {
+        var overallStopwatch = Stopwatch.StartNew();
+        var timestamp = DateTimeOffset.UtcNow;
+        var cycleId = $"cycle-{timestamp:yyyy-MM-ddTHHmmss}";
+
         IXmlOutputFactory factory = ResolveFactory(mode);
 
         var queriesToProcess = _queries.SortedQueries;
@@ -71,14 +77,41 @@ internal class MigrationPipelineService : IMigrationPipelineService
                 string.Join(", ", entityFilter));
         }
 
-        var (parts, succeeded, failed) = await RunQueriesWithDependenciesAsync(factory, queriesToProcess, cancellationToken);
+        var entityResults = new ConcurrentDictionary<string, EntityResult>();
+
+        var (parts, succeeded, failed) = await RunQueriesWithDependenciesAsync(
+            factory, queriesToProcess, entityResults, cancellationToken);
+
+        overallStopwatch.Stop();
+
+        var orderedResults = entityResults.Values.OrderBy(r => r.EntityName).ToList();
+
+        var summary = new CycleSummary
+        {
+            TotalEntities = entityResults.Values.Count,
+            Succeeded = entityResults.Values.Count(r => r.Status == EntityStatus.Success),
+            Failed = entityResults.Values.Count(r => r.Status == EntityStatus.Failed),
+            Warnings = entityResults.Values.Count(r => r.Status == EntityStatus.Warning),
+            Skipped = entityResults.Values.Count(r => r.Status == EntityStatus.Skipped),
+            TotalDurationMs = overallStopwatch.ElapsedMilliseconds
+        };
+
+        _logger.LogInformation(
+            "Migration cycle {CycleId} complete: {Succeeded} succeeded, {Failed} failed, {Total} total in {DurationMs}ms",
+            cycleId, summary.Succeeded, summary.Failed, summary.TotalEntities, summary.TotalDurationMs);
 
         return new CycleResult
         {
             Command = mode.ToString(),
             TotalEntities = parts.Count,
             Succeeded = succeeded,
-            Failed = failed
+            Failed = failed,
+            CycleId = cycleId,
+            Timestamp = timestamp,
+            EntitiesRequested = entityFilter ?? ["all"],
+            Results = orderedResults,
+            Summary = summary,
+            TotalDurationMs = overallStopwatch.ElapsedMilliseconds
         };
     }
 
@@ -94,7 +127,10 @@ internal class MigrationPipelineService : IMigrationPipelineService
     }
 
     private async Task<(ConcurrentBag<IXmlOutputPart> parts, int succeeded, int failed)> RunQueriesWithDependenciesAsync(
-        IXmlOutputFactory factory, List<List<SourceQueryItem>> queries, CancellationToken cancellationToken)
+        IXmlOutputFactory factory,
+        List<List<SourceQueryItem>> queries,
+        ConcurrentDictionary<string, EntityResult> entityResults,
+        CancellationToken cancellationToken)
     {
         ConcurrentBag<IXmlOutputPart> parts = new();
         int totalSucceeded = 0;
@@ -108,12 +144,39 @@ internal class MigrationPipelineService : IMigrationPipelineService
                 cancellationToken,
                 async (source, token) =>
                 {
-                    IEnumerable<IXmlOutputPart> list = await _sqlToXmlService
-                        .ExportToOutput(source, factory, token);
-                    foreach (IXmlOutputPart part in list)
+                    var entityStopwatch = Stopwatch.StartNew();
+                    var entityResult = new EntityResult
                     {
-                        parts.Add(part);
-                        running.Add(part);
+                        EntityName = source.EntityName,
+                        DefinitionGroupId = source.DefinitionGroupId,
+                        Status = EntityStatus.Success,
+                        RecordCount = 0
+                    };
+                    try
+                    {
+                        IEnumerable<IXmlOutputPart> list = await _sqlToXmlService
+                            .ExportToOutput(source, factory, token);
+                        foreach (IXmlOutputPart part in list)
+                        {
+                            parts.Add(part);
+                            running.Add(part);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        entityResult.Status = EntityStatus.Failed;
+                        entityResult.Errors.Add(new EntityError
+                        {
+                            Message = ex.Message,
+                            Category = ErrorCategory.Technical
+                        });
+                        _logger.LogError(ex, "Entity {EntityName} failed during processing", source.EntityName);
+                    }
+                    finally
+                    {
+                        entityStopwatch.Stop();
+                        entityResult.DurationMs = entityStopwatch.ElapsedMilliseconds;
+                        entityResults.TryAdd(source.EntityName, entityResult);
                     }
                 });
             var (hasFailed, succeeded, failed) = await CheckTasksStatus(running.ToArray(), cancellationToken);
