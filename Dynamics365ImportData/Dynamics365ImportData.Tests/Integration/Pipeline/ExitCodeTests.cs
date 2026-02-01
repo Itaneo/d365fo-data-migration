@@ -1,6 +1,7 @@
 namespace Dynamics365ImportData.Tests.Integration.Pipeline;
 
 using Dynamics365ImportData.DependencySorting;
+using Dynamics365ImportData.Persistence;
 using Dynamics365ImportData.Pipeline;
 using Dynamics365ImportData.Settings;
 
@@ -76,9 +77,11 @@ public class ExitCodeTests : IDisposable
 
     private CommandHandler CreateCommandHandler(IMigrationPipelineService mockPipeline)
     {
+        var mockResultRepository = Substitute.For<IMigrationResultRepository>();
         return new CommandHandler(
             mockPipeline,
             _queries,
+            mockResultRepository,
             NullLogger<CommandHandler>.Instance);
     }
 

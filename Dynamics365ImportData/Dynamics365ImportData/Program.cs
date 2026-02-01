@@ -4,7 +4,9 @@ using Cocona;
 
 using Dynamics365ImportData.DependencySorting;
 using Dynamics365ImportData.Erp.DataManagementDefinitionGroups;
+using Dynamics365ImportData.Persistence;
 using Dynamics365ImportData.Pipeline;
+using Dynamics365ImportData.Sanitization;
 using Dynamics365ImportData.Services;
 using Dynamics365ImportData.Settings;
 using Dynamics365ImportData.XmlOutput;
@@ -59,6 +61,10 @@ public class Program
                 .AddSingleton<XmlPackageFileOutputFactory>()
                 .AddSingleton<XmlFileOutputFactory>()
                 .AddTransient<IMigrationPipelineService, MigrationPipelineService>();
+
+            // Result Persistence
+            _ = services.AddSingleton<IMigrationResultRepository, JsonFileMigrationResultRepository>();
+            _ = services.AddSingleton<IResultSanitizer, RegexResultSanitizer>();
             _ = services.AddHttpClient<IDynamics365FinanceDataManagementGroups, Dynamics365FinanceDataManagementGroups>(
                     (services, httpClient) => httpClient.Timeout = new TimeSpan(0,
                                                                                 services.GetRequiredService<IOptions<Dynamics365Settings>>().Value.ImportTimeout,
@@ -71,6 +77,8 @@ public class Program
                 .Bind(builder.Configuration.GetSection(nameof(ProcessSettings)));
             _ = services.AddOptions<Dynamics365Settings>()
                 .Bind(builder.Configuration.GetSection(nameof(Dynamics365Settings)));
+            _ = services.AddOptions<PersistenceSettings>()
+                .Bind(builder.Configuration.GetSection(nameof(PersistenceSettings)));
             _ = builder.Host
                     .UseSerilog((context, services, configuration) =>
                                 configuration

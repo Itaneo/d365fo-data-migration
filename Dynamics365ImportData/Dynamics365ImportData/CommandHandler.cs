@@ -3,6 +3,7 @@ namespace Dynamics365ImportData;
 using Cocona;
 
 using Dynamics365ImportData.DependencySorting;
+using Dynamics365ImportData.Persistence;
 using Dynamics365ImportData.Pipeline;
 
 using Microsoft.Extensions.Logging;
@@ -12,14 +13,17 @@ internal class CommandHandler
     private readonly ILogger<CommandHandler> _logger;
     private readonly IMigrationPipelineService _pipelineService;
     private readonly SourceQueryCollection _queries;
+    private readonly IMigrationResultRepository _resultRepository;
 
     public CommandHandler(
         IMigrationPipelineService pipelineService,
         SourceQueryCollection queries,
+        IMigrationResultRepository resultRepository,
         ILogger<CommandHandler> logger)
     {
         _pipelineService = pipelineService;
         _queries = queries;
+        _resultRepository = resultRepository;
         _logger = logger;
     }
 
@@ -34,7 +38,7 @@ internal class CommandHandler
         {
             string[]? entityFilter = ParseEntityFilter(entities);
             var result = await _pipelineService.ExecuteAsync(PipelineMode.File, entityFilter, cancellationToken);
-            _logger.LogInformation("Exported successfully to directory: {OutputDirectory}", _queries.OutputDirectory);
+            await PersistResultAsync(result, cancellationToken);
             return result.Failed > 0 ? 1 : 0;
         }
         catch (EntityValidationException ex)
@@ -65,7 +69,7 @@ internal class CommandHandler
         {
             string[]? entityFilter = ParseEntityFilter(entities);
             var result = await _pipelineService.ExecuteAsync(PipelineMode.Package, entityFilter, cancellationToken);
-            _logger.LogInformation("Exported successfully to directory: {OutputDirectory}", _queries.OutputDirectory);
+            await PersistResultAsync(result, cancellationToken);
             return result.Failed > 0 ? 1 : 0;
         }
         catch (EntityValidationException ex)
@@ -95,7 +99,7 @@ internal class CommandHandler
         {
             string[]? entityFilter = ParseEntityFilter(entities);
             var result = await _pipelineService.ExecuteAsync(PipelineMode.D365, entityFilter, cancellationToken);
-            _logger.LogInformation("Import to Dynamics 365 completed");
+            await PersistResultAsync(result, cancellationToken);
             return result.Failed > 0 ? 1 : 0;
         }
         catch (EntityValidationException ex)
@@ -131,6 +135,18 @@ internal class CommandHandler
             string fileName = Path.GetFileName(path);
             _logger.LogInformation("Deleting old file : {FileName}", fileName);
             File.Delete(path);
+        }
+    }
+
+    private async Task PersistResultAsync(CycleResult result, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _resultRepository.SaveCycleResultAsync(result, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to persist migration results for cycle {CycleId}", result.CycleId);
         }
     }
 }
