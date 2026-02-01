@@ -357,3 +357,9 @@ Below is a complete `appsettings.json` with all sections populated using realist
 ```
 
 This example shows three entities with a dependency chain: `smmContactPersonV2Entity` is processed first, then `CustCustomerV3Entity` (which depends on contacts), and finally `CustomerBankAccountEntity` (which depends on customers). The tool resolves this order automatically using topological sorting.
+
+## See Also
+
+- [Setup Guide](setup-guide.md) -- Installation, first-run instructions, and troubleshooting
+- [Entity Authoring Guide](entity-authoring-guide.md) -- How to add new entity definitions (SQL queries, manifests, dependencies)
+- [Developer Guide](developer-guide.md) -- Codebase architecture, key components, and extension points

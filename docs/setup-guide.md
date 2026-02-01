@@ -290,3 +290,9 @@ Server=localhost;Database=AxDb;Trusted_Connection=True;TrustServerCertificate=Tr
   - `Manifest.xml` -- the D365FO manifest template
   - `PackageHeader.xml` -- the D365FO package header template
 - **Custom file paths:** If `QueryFileName`, `ManifestFileName`, or `PackageHeaderFileName` are left empty, they auto-resolve to the default paths above. If set, they must point to valid files.
+
+## See Also
+
+- [Configuration Reference](configuration-reference.md) -- Complete reference for all `appsettings.json` options
+- [Entity Authoring Guide](entity-authoring-guide.md) -- How to add new entity definitions (SQL queries, manifests, dependencies)
+- [Developer Guide](developer-guide.md) -- Codebase architecture, key components, and extension points

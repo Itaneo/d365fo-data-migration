@@ -131,11 +131,13 @@ Each entity requires a definition folder under `DefinitionDirectory` containing:
 
 ```
 Definition/
-└── CustCustomerV3Entity/
-    ├── CustCustomerV3Entity.sql    # SQL query to extract data
+└── CUSTCUSTOMERV3ENTITY/
+    ├── CUSTCUSTOMERV3ENTITY.sql    # SQL query to extract data
     ├── Manifest.xml                 # D365FO manifest template
     └── PackageHeader.xml            # D365FO package header template
 ```
+
+> **Note:** The tool converts entity names to uppercase internally for file lookups. On Windows, casing does not matter. On Linux/macOS, use uppercase folder and file names. See the [Entity Authoring Guide](docs/entity-authoring-guide.md) for details.
 
 ### SQL Query Example
 
@@ -190,6 +192,8 @@ For detailed documentation, see the `docs/` directory:
 
 - **[Setup Guide](docs/setup-guide.md)** -- Step-by-step instructions for installing, configuring, and running the tool from scratch.
 - **[Configuration Reference](docs/configuration-reference.md)** -- Complete reference for all `appsettings.json` options with descriptions, types, defaults, and examples.
+- **[Entity Authoring Guide](docs/entity-authoring-guide.md)** -- How to add new D365FO entity definitions: SQL queries, manifest files, package headers, and dependencies.
+- **[Developer Guide](docs/developer-guide.md)** -- Codebase architecture, key components, data flow, DI patterns, and extension points.
 
 ## License
 
