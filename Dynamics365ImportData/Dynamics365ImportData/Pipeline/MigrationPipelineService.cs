@@ -2,6 +2,7 @@ namespace Dynamics365ImportData.Pipeline;
 
 using Dynamics365ImportData.DependencySorting;
 using Dynamics365ImportData.Erp.DataManagementDefinitionGroups;
+using Dynamics365ImportData.Fingerprinting;
 using Dynamics365ImportData.Persistence.Models;
 using Dynamics365ImportData.Services;
 using Dynamics365ImportData.Settings;
@@ -16,6 +17,7 @@ using System.Diagnostics;
 
 internal class MigrationPipelineService : IMigrationPipelineService
 {
+    private readonly IErrorFingerprinter _fingerprinter;
     private readonly ILogger<MigrationPipelineService> _logger;
     private readonly IServiceProvider _provider;
     private readonly SourceQueryCollection _queries;
@@ -27,11 +29,13 @@ internal class MigrationPipelineService : IMigrationPipelineService
         SqlToXmlService sqlToXmlService,
         IServiceProvider provider,
         IOptions<Dynamics365Settings> settings,
+        IErrorFingerprinter fingerprinter,
         ILogger<MigrationPipelineService> logger)
     {
         _queries = queries;
         _sqlToXmlService = sqlToXmlService;
         _provider = provider;
+        _fingerprinter = fingerprinter;
         _logger = logger;
         var settingsValue = settings.Value ?? throw new ArgumentNullException(nameof(settings), "The settings are null");
         _timeout = settingsValue.ImportTimeout <= 0 ? 60 : settingsValue.ImportTimeout;
@@ -164,12 +168,14 @@ internal class MigrationPipelineService : IMigrationPipelineService
                     }
                     catch (Exception ex)
                     {
-                        entityResult.Status = EntityStatus.Failed;
-                        entityResult.Errors.Add(new EntityError
+                        var error = new EntityError
                         {
                             Message = ex.Message,
+                            Fingerprint = _fingerprinter.ComputeFingerprint(source.EntityName, ex.Message),
                             Category = ErrorCategory.Technical
-                        });
+                        };
+                        entityResult.Status = EntityStatus.Failed;
+                        entityResult.Errors.Add(error);
                         _logger.LogError(ex, "Entity {EntityName} failed during processing", source.EntityName);
                     }
                     finally

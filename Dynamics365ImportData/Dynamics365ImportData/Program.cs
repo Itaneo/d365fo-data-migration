@@ -4,6 +4,8 @@ using Cocona;
 
 using Dynamics365ImportData.DependencySorting;
 using Dynamics365ImportData.Erp.DataManagementDefinitionGroups;
+using Dynamics365ImportData.Comparison;
+using Dynamics365ImportData.Fingerprinting;
 using Dynamics365ImportData.Persistence;
 using Dynamics365ImportData.Pipeline;
 using Dynamics365ImportData.Sanitization;
@@ -65,6 +67,10 @@ public class Program
             // Result Persistence
             _ = services.AddSingleton<IMigrationResultRepository, JsonFileMigrationResultRepository>();
             _ = services.AddSingleton<IResultSanitizer, RegexResultSanitizer>();
+
+            // Error Analysis
+            _ = services.AddSingleton<IErrorFingerprinter, ErrorFingerprinter>();
+            _ = services.AddTransient<IErrorComparisonService, ErrorComparisonService>();
             _ = services.AddHttpClient<IDynamics365FinanceDataManagementGroups, Dynamics365FinanceDataManagementGroups>(
                     (services, httpClient) => httpClient.Timeout = new TimeSpan(0,
                                                                                 services.GetRequiredService<IOptions<Dynamics365Settings>>().Value.ImportTimeout,
