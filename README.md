@@ -1,6 +1,6 @@
 # D365FO Data Migration
 
-A .NET 8 command-line tool for migrating data from SQL Server databases to Microsoft Dynamics 365 Finance and Operations (D365FO). The tool extracts data using SQL queries, transforms it into XML format compatible with D365FO Data Management Framework, and supports direct import via the Data Management REST API.
+A .NET 10 command-line tool for migrating data from SQL Server databases to Microsoft Dynamics 365 Finance and Operations (D365FO). The tool extracts data using SQL queries, transforms it into XML format compatible with D365FO Data Management Framework, and supports direct import via the Data Management REST API.
 
 ## Features
 
@@ -14,7 +14,7 @@ A .NET 8 command-line tool for migrating data from SQL Server databases to Micro
 
 ## Prerequisites
 
-- .NET 8.0 SDK or Runtime
+- .NET 10.0 SDK or Runtime
 - Access to source SQL Server database
 - For D365FO import: Azure AD application with appropriate permissions
 
@@ -34,7 +34,7 @@ Configure the application using `appsettings.json`:
 
 ```json
 "SourceSettings": {
-  "SourceConnectionString": "Server=localhost;Database=AxDb;Trusted_Connection=True;"
+  "SourceConnectionString": "Server=localhost;Database=AxDb;Trusted_Connection=True;TrustServerCertificate=True;"
 }
 ```
 
@@ -183,6 +183,13 @@ The application uses Serilog for structured logging. Configure log levels in `ap
   }
 }
 ```
+
+## Documentation
+
+For detailed documentation, see the `docs/` directory:
+
+- **[Setup Guide](docs/setup-guide.md)** -- Step-by-step instructions for installing, configuring, and running the tool from scratch.
+- **[Configuration Reference](docs/configuration-reference.md)** -- Complete reference for all `appsettings.json` options with descriptions, types, defaults, and examples.
 
 ## License
 
