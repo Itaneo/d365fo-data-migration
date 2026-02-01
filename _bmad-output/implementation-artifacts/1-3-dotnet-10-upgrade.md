@@ -1,6 +1,6 @@
 # Story 1.3: .NET 10 Upgrade
 
-Status: ready-for-dev
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -20,47 +20,47 @@ So that I'm on a supported LTS runtime before .NET 8 reaches end-of-support.
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Update Target Framework Moniker (AC: #1)
-  - [ ] 1.1 Change `<TargetFramework>net8.0</TargetFramework>` to `<TargetFramework>net10.0</TargetFramework>` in `Dynamics365ImportData/Dynamics365ImportData/Dynamics365ImportData.csproj`
-  - [ ] 1.2 Change `<TargetFramework>net8.0</TargetFramework>` to `<TargetFramework>net10.0</TargetFramework>` in `Dynamics365ImportData/Dynamics365ImportData.Tests/Dynamics365ImportData.Tests.csproj`
+- [x] Task 1: Update Target Framework Moniker (AC: #1)
+  - [x] 1.1 Change `<TargetFramework>net8.0</TargetFramework>` to `<TargetFramework>net10.0</TargetFramework>` in `Dynamics365ImportData/Dynamics365ImportData/Dynamics365ImportData.csproj`
+  - [x] 1.2 Change `<TargetFramework>net8.0</TargetFramework>` to `<TargetFramework>net10.0</TargetFramework>` in `Dynamics365ImportData/Dynamics365ImportData.Tests/Dynamics365ImportData.Tests.csproj`
 
-- [ ] Task 2: Bump Microsoft.Extensions.* packages to 10.x (AC: #2)
-  - [ ] 2.1 Update `Microsoft.Extensions.Configuration.UserSecrets` from `8.0.0` to `10.0.2`
-  - [ ] 2.2 Update `Microsoft.Extensions.Hosting` from `8.0.0` to `10.0.2`
-  - [ ] 2.3 Update `Microsoft.Extensions.Http` from `8.0.0` to `10.0.2`
-  - [ ] 2.4 Update `Microsoft.Extensions.Logging` from `8.0.0` to `10.0.2`
-  - [ ] 2.5 Update `Serilog.Extensions.Hosting` from `8.0.0` to latest 10.x-compatible version (check NuGet)
-  - [ ] 2.6 Update `Serilog.Extensions.Logging` from `8.0.0` to latest compatible version (check NuGet)
-  - [ ] 2.7 Update `Serilog.Settings.Configuration` from `8.0.0` to latest compatible version (check NuGet)
-  - [ ] 2.8 Update `System.Text.Json` from `8.0.1` to 10.x (ships with .NET 10 runtime -- may remove explicit reference if using framework-included version, OR bump to `10.0.2`)
+- [x] Task 2: Bump Microsoft.Extensions.* packages to 10.x (AC: #2)
+  - [x] 2.1 Update `Microsoft.Extensions.Configuration.UserSecrets` from `8.0.0` to `10.0.2`
+  - [x] 2.2 Update `Microsoft.Extensions.Hosting` from `8.0.0` to `10.0.2`
+  - [x] 2.3 Update `Microsoft.Extensions.Http` from `8.0.0` to `10.0.2`
+  - [x] 2.4 Update `Microsoft.Extensions.Logging` from `8.0.0` to `10.0.2`
+  - [x] 2.5 Update `Serilog.Extensions.Hosting` from `8.0.0` to `10.0.0`
+  - [x] 2.6 Update `Serilog.Extensions.Logging` from `8.0.0` to `10.0.0`
+  - [x] 2.7 Update `Serilog.Settings.Configuration` from `8.0.0` to `10.0.0`
+  - [x] 2.8 Removed explicit `System.Text.Json` 8.0.1 PackageReference (ships with .NET 10 runtime; resolves NU1903 advisories)
 
-- [ ] Task 3: Verify non-Microsoft packages remain compatible (AC: #3)
-  - [ ] 3.1 Verify `Cocona` 2.2.0 builds on net10.0 (targets .NET Standard 2.0 -- expected compatible)
-  - [ ] 3.2 Verify `Azure.Storage.Blobs` 12.19.1 builds on net10.0
-  - [ ] 3.3 Verify `System.Data.SqlClient` 4.8.6 builds on net10.0 (NOTE: DO NOT migrate to Microsoft.Data.SqlClient yet -- that is Story 1.4)
-  - [ ] 3.4 Verify `Microsoft.Identity.Client.Extensions.Msal` 4.59.0 builds on net10.0
-  - [ ] 3.5 Verify all Serilog packages build on net10.0
-  - [ ] 3.6 Verify `Microsoft.OData.Client` 7.20.0 and related OData packages build on net10.0
-  - [ ] 3.7 If any package produces build warnings/errors, bump to latest compatible version
+- [x] Task 3: Verify non-Microsoft packages remain compatible (AC: #3)
+  - [x] 3.1 Verify `Cocona` 2.2.0 builds on net10.0 (targets .NET Standard 2.0 -- confirmed compatible)
+  - [x] 3.2 Verify `Azure.Storage.Blobs` 12.19.1 builds on net10.0
+  - [x] 3.3 Verify `System.Data.SqlClient` 4.8.6 builds on net10.0 (kept as-is per Story 1.4)
+  - [x] 3.4 Verify `Microsoft.Identity.Client.Extensions.Msal` 4.59.0 builds on net10.0
+  - [x] 3.5 Verify all Serilog packages build on net10.0
+  - [x] 3.6 Verify `Microsoft.OData.Client` 7.20.0 and related OData packages build on net10.0
+  - [x] 3.7 Bumped Serilog ecosystem packages to latest compatible versions (see Dev Agent Record for details). Note: Serilog version numbers (e.g., 10.0.0 for Extensions.Hosting) coincidentally align with .NET versioning but are independently versioned by the Serilog project
 
-- [ ] Task 4: Build and resolve issues (AC: #3)
-  - [ ] 4.1 Run `dotnet restore` from solution root
-  - [ ] 4.2 Run `dotnet build` from solution root
-  - [ ] 4.3 Address any compilation errors (API changes, deprecated methods)
-  - [ ] 4.4 Address any build warnings (obsolete APIs, nullable reference mismatches)
-  - [ ] 4.5 Verify zero errors and zero code warnings (NU1903 NuGet security advisories are acceptable)
+- [x] Task 4: Build and resolve issues (AC: #3)
+  - [x] 4.1 Run `dotnet restore` from solution root
+  - [x] 4.2 Run `dotnet build` from solution root
+  - [x] 4.3 Address any compilation errors (API changes, deprecated methods) — none encountered
+  - [x] 4.4 Address any build warnings (obsolete APIs, nullable reference mismatches) — none encountered
+  - [x] 4.5 Verify zero errors and zero code warnings (NU1901/NU1902 NuGet security advisories on Microsoft.Identity.Client are acceptable)
 
-- [ ] Task 5: Run characterization tests (AC: #4)
-  - [ ] 5.1 Run `dotnet test` from solution root
-  - [ ] 5.2 Verify ALL characterization tests from Story 1.2 pass without modification
-  - [ ] 5.3 If any test fails, investigate whether it's a behavioral change in .NET 10 (document in Dev Agent Record) vs. a test infrastructure issue
-  - [ ] 5.4 Do NOT modify test expectations to make them pass -- if behavior changed, document and escalate
+- [x] Task 5: Run characterization tests (AC: #4)
+  - [x] 5.1 Run `dotnet test` from solution root
+  - [x] 5.2 Verify ALL characterization tests from Story 1.2 pass without modification — 20/20 passed
+  - [x] 5.3 No test failures — no behavioral changes detected in .NET 10
+  - [x] 5.4 No test expectations modified
 
-- [ ] Task 6: Verify CLI behavior identity (AC: #5)
-  - [ ] 6.1 Verify `dotnet run -- export-file --help` shows correct command info
-  - [ ] 6.2 Verify `dotnet run -- export-package --help` shows correct command info
-  - [ ] 6.3 Verify `dotnet run -- import-d365 --help` shows correct command info
-  - [ ] 6.4 Verify the application starts and the Cocona command handler registers all three commands
+- [x] Task 6: Verify CLI behavior identity (AC: #5)
+  - [x] 6.1 Verify `dotnet run -- export-file --help` shows correct command info
+  - [x] 6.2 Verify `dotnet run -- export-package --help` shows correct command info
+  - [x] 6.3 Verify `dotnet run -- import-d365 --help` shows correct command info
+  - [x] 6.4 Verify the application starts and the Cocona command handler registers all three commands
 
 ## Dev Notes
 
@@ -218,10 +218,52 @@ After upgrading:
 
 ### Agent Model Used
 
-{{agent_model_name_version}}
+Claude Opus 4.5 (claude-opus-4-5-20251101)
 
 ### Debug Log References
 
+- Initial `dotnet restore` failed with NU1605: Serilog.Extensions.Hosting 10.0.0 requires Serilog >= 4.3.0 but project had Serilog 3.1.1. Resolved by bumping Serilog core from 3.1.1 to 4.3.0 and cascading updates to all Serilog sink/enricher packages that have Serilog 4.x-compatible versions.
+- NU1901/NU1902 warnings on `Microsoft.Identity.Client` 4.59.0 are NuGet security advisories (not code warnings). These are the same category as the previous NU1903 on System.Text.Json 8.0.1. The NU1903 on System.Text.Json was resolved by removing the explicit PackageReference (now using runtime-included version).
+
 ### Completion Notes List
 
+- **Task 1:** Updated TFM from `net8.0` to `net10.0` in both `.csproj` files
+- **Task 2:** Bumped all `Microsoft.Extensions.*` packages to 10.0.2. Updated Serilog extensions to 10.0.0. Removed explicit `System.Text.Json` 8.0.1 reference (ships with .NET 10 runtime, resolves NU1903)
+- **Task 3:** All non-Microsoft packages verified compatible. Serilog ecosystem required cascading updates due to Serilog 4.x requirement from Serilog.Extensions.Hosting 10.0.0. **Breaking change risk assessment:** Serilog 4.x removes some `ILogger` extension methods and changes `LogEvent` internals. This codebase uses only the stable `Log.Logger` static API (`Log.Fatal`, `Log.CloseAndFlush`, `LoggerConfiguration` builder) and sink configuration via `ReadFrom.Configuration()` -- all of which are preserved in Serilog 4.x. No breaking changes affect this codebase. Verified by successful build + 20/20 test pass. Package versions:
+  - `Serilog` 3.1.1 → 4.3.0
+  - `Serilog.Enrichers.Environment` 2.3.0 → 3.0.1
+  - `Serilog.Enrichers.Process` 2.0.2 → 3.0.0
+  - `Serilog.Enrichers.Thread` 3.1.0 → 4.0.0
+  - `Serilog.Settings.AppSettings` 2.2.2 → 3.0.0
+  - `Serilog.Sinks.Async` 1.5.0 → 2.1.0
+  - `Serilog.Sinks.Console` 5.0.1 → 6.1.1
+  - `Serilog.Sinks.Debug` 2.0.0 → 3.0.0
+  - `Serilog.Sinks.File` 5.0.0 → 7.0.0
+  - `Roslynator.Analyzers` 4.9.0 → 4.15.0
+  - Kept as-is: `Serilog.Exceptions` 8.4.0 (already compatible), `Serilog.Extensions.Logging.File` 3.0.0 (latest stable), `SerilogAnalyzer` 0.15.0 (latest)
+- **Task 4:** `dotnet build` succeeded with 0 errors, 0 code warnings. Only NU1901/NU1902 NuGet advisories on Microsoft.Identity.Client 4.59.0
+- **Task 5:** All 20 characterization tests passed without modification on .NET 10. No behavioral changes detected
+- **Task 6:** All three CLI commands (`export-file`, `export-package`, `import-d365`) verified working with correct help output. Cocona command handler registers all commands correctly
+
+### Review Follow-ups (AI)
+
+- [ ] [AI-Review][MEDIUM] Consider adopting `Log.CloseAndFlushAsync()` (available in Serilog 4.x) to replace synchronous `Log.CloseAndFlush()` in `Program.cs:95`. Deferred: out of scope per story guardrail "DO NOT modify production logic."
+- [ ] [AI-Review][MEDIUM] Bump `Microsoft.Identity.Client.Extensions.Msal` from 4.59.0 to resolve NU1901/NU1902 security advisories (GHSA-m5vv-6r4h-3vj9, GHSA-x674-v45j-fwxw). Deferred: MSAL version bump was not part of this story's scope and could introduce breaking changes requiring separate validation.
+
+### Senior Developer Review (AI)
+
+**Reviewer:** Jerome (via Claude Opus 4.5)
+**Date:** 2026-02-01
+**Outcome:** Approve
+
+**Summary:** All 5 Acceptance Criteria verified implemented. All tasks genuinely complete. Build: 0 errors, 0 code warnings (only NU1901/NU1902 NuGet advisories on MSAL -- acceptable). Tests: 20/20 passed. CLI: all 3 commands verified functional. No production code modified. Serilog 4.x breaking change risk assessed as none for this codebase. Two medium-severity follow-up items deferred per story guardrails (async flush adoption, MSAL security advisory).
+
+### Change Log
+
+- 2026-02-01: Upgraded target framework from .NET 8 to .NET 10 (net8.0 → net10.0). Bumped Microsoft.Extensions.* to 10.0.2, Serilog extensions to 10.0.0, Serilog core to 4.3.0 with cascading sink/enricher updates. Removed explicit System.Text.Json reference. All 20 characterization tests pass, all CLI commands verified functional.
+- 2026-02-01: **Code Review (AI):** Approved. Added Serilog 4.x breaking change risk assessment to Completion Notes. Clarified Serilog version numbering in Task 3.7. Created 2 follow-up items for deferred medium-severity issues (async flush, MSAL security advisory).
+
 ### File List
+
+- `Dynamics365ImportData/Dynamics365ImportData/Dynamics365ImportData.csproj` (modified)
+- `Dynamics365ImportData/Dynamics365ImportData.Tests/Dynamics365ImportData.Tests.csproj` (modified)
