@@ -4,6 +4,7 @@ using Cocona;
 
 using Dynamics365ImportData.DependencySorting;
 using Dynamics365ImportData.Erp.DataManagementDefinitionGroups;
+using Dynamics365ImportData.Pipeline;
 using Dynamics365ImportData.Services;
 using Dynamics365ImportData.Settings;
 using Dynamics365ImportData.XmlOutput;
@@ -56,7 +57,8 @@ public class Program
                 .AddSingleton<SourceQueryCollection>()
                 .AddSingleton<XmlD365FnoOutputFactory>()
                 .AddSingleton<XmlPackageFileOutputFactory>()
-                .AddSingleton<XmlFileOutputFactory>();
+                .AddSingleton<XmlFileOutputFactory>()
+                .AddTransient<IMigrationPipelineService, MigrationPipelineService>();
             _ = services.AddHttpClient<IDynamics365FinanceDataManagementGroups, Dynamics365FinanceDataManagementGroups>(
                     (services, httpClient) => httpClient.Timeout = new TimeSpan(0,
                                                                                 services.GetRequiredService<IOptions<Dynamics365Settings>>().Value.ImportTimeout,

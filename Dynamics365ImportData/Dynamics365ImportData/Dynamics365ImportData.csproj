@@ -8,6 +8,9 @@
 		<UserSecretsId>6cb9d358-d72f-443a-ad66-b624ce71468b</UserSecretsId>
 	</PropertyGroup>
 	<ItemGroup>
+		<InternalsVisibleTo Include="Dynamics365ImportData.Tests" />
+	</ItemGroup>
+	<ItemGroup>
 	  <None Remove="appsettings.json" />
 	</ItemGroup>
 	<ItemGroup>
