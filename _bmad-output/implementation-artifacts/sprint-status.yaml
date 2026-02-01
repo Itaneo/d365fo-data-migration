@@ -48,8 +48,8 @@ development_status:
   1-5-full-test-suite-expansion: done
   epic-1-retrospective: optional
 
-  epic-2: backlog
-  2-1-setup-guide-and-configuration-reference: backlog
+  epic-2: in-progress
+  2-1-setup-guide-and-configuration-reference: done
   2-2-entity-authoring-guide-and-developer-documentation: backlog
   epic-2-retrospective: optional
 
