@@ -33,6 +33,8 @@ public class ReadinessReportService : IReadinessReportService
     public async Task<string?> GenerateAsync(
         int? cycleCount = null,
         string? outputPath = null,
+        int? successThreshold = null,
+        int? warningThreshold = null,
         CancellationToken cancellationToken = default)
     {
         var requestedCycles = cycleCount ?? _reportSettings.Value.DefaultCycleRange;
@@ -47,7 +49,19 @@ public class ReadinessReportService : IReadinessReportService
             return null;
         }
 
-        var report = BuildReport(cycles, requestedCycles);
+        var effectiveSettings = _reportSettings.Value;
+        if (successThreshold.HasValue || warningThreshold.HasValue)
+        {
+            effectiveSettings = new Settings.ReportSettings
+            {
+                DefaultCycleRange = effectiveSettings.DefaultCycleRange,
+                SuccessThreshold = successThreshold ?? effectiveSettings.SuccessThreshold,
+                WarningThreshold = warningThreshold ?? effectiveSettings.WarningThreshold,
+                OutputDirectory = effectiveSettings.OutputDirectory
+            };
+        }
+
+        var report = BuildReport(cycles, requestedCycles, effectiveSettings);
         var markdown = BuildMarkdown(report);
         var filePath = outputPath ?? GetDefaultOutputPath(report.GeneratedAt);
 
@@ -60,11 +74,10 @@ public class ReadinessReportService : IReadinessReportService
         return filePath;
     }
 
-    private ReadinessReport BuildReport(IReadOnlyList<CycleResult> cycles, int requestedCycles)
+    private ReadinessReport BuildReport(IReadOnlyList<CycleResult> cycles, int requestedCycles, Settings.ReportSettings settings)
     {
         // Cycles come latest-first from repository; reverse for oldest-first processing
         var orderedCycles = cycles.Reverse().ToList();
-        var settings = _reportSettings.Value;
 
         var report = new ReadinessReport
         {

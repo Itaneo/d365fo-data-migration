@@ -7,6 +7,9 @@ using Dynamics365ImportData.Comparison.Models;
 using Dynamics365ImportData.DependencySorting;
 using Dynamics365ImportData.Persistence;
 using Dynamics365ImportData.Pipeline;
+using Dynamics365ImportData.Reporting;
+
+using System.Globalization;
 
 using Microsoft.Extensions.Logging;
 
@@ -16,6 +19,7 @@ internal class CommandHandler
     private readonly ILogger<CommandHandler> _logger;
     private readonly IMigrationPipelineService _pipelineService;
     private readonly SourceQueryCollection _queries;
+    private readonly IReadinessReportService _readinessReportService;
     private readonly IErrorComparisonReportService _reportService;
     private readonly IMigrationResultRepository _resultRepository;
 
@@ -25,6 +29,7 @@ internal class CommandHandler
         IMigrationResultRepository resultRepository,
         IErrorComparisonService comparisonService,
         IErrorComparisonReportService reportService,
+        IReadinessReportService readinessReportService,
         ILogger<CommandHandler> logger)
     {
         _pipelineService = pipelineService;
@@ -32,6 +37,7 @@ internal class CommandHandler
         _resultRepository = resultRepository;
         _comparisonService = comparisonService;
         _reportService = reportService;
+        _readinessReportService = readinessReportService;
         _logger = logger;
     }
 
@@ -174,6 +180,88 @@ internal class CommandHandler
             _logger.LogError(ex, "Failed to generate error comparison report");
             return 1;
         }
+    }
+
+    [Command("readiness-report", Aliases = new[] { "rr" }, Description = "Generate migration readiness report across multiple cycles")]
+    public async Task<int> RunReadinessReportAsync(
+        [Option("cycles")] int cycles = 5,
+        [Option("threshold")] string? thresholdConfig = null,
+        [Option("output")] string? outputPath = null,
+        CancellationToken cancellationToken = default)
+    {
+        if (cycles <= 0)
+        {
+            _logger.LogError("Invalid cycles value {Cycles}. Must be a positive integer", cycles);
+            return 2;
+        }
+
+        int? successThreshold = null;
+        int? warningThreshold = null;
+
+        if (thresholdConfig is not null)
+        {
+            try
+            {
+                (successThreshold, warningThreshold) = ParseThresholdConfig(thresholdConfig);
+            }
+            catch (FormatException ex)
+            {
+                _logger.LogError("Invalid threshold configuration: {ErrorMessage}", ex.Message);
+                return 2;
+            }
+        }
+
+        try
+        {
+            var reportPath = await _readinessReportService.GenerateAsync(
+                cycles, outputPath, successThreshold, warningThreshold, cancellationToken);
+
+            if (reportPath is null)
+            {
+                _logger.LogWarning("No cycle results found; readiness report not generated");
+                return 1;
+            }
+
+            _logger.LogInformation("Readiness report generated: {ReportPath}", reportPath);
+            return 0;
+        }
+        catch (OperationCanceledException)
+        {
+            _logger.LogWarning("Readiness report generation was canceled");
+            return 1;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to generate readiness report");
+            return 1;
+        }
+    }
+
+    private static (int? successThreshold, int? warningThreshold) ParseThresholdConfig(string thresholdConfig)
+    {
+        int? success = null, warning = null;
+        foreach (var part in thresholdConfig.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        {
+            var kv = part.Split(':', 2);
+            if (kv.Length != 2)
+                throw new FormatException($"Invalid threshold format: '{part}'. Expected 'key:value'.");
+            switch (kv[0].Trim().ToLowerInvariant())
+            {
+                case "success":
+                    if (!int.TryParse(kv[1].Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out var successVal))
+                        throw new FormatException($"Invalid value for 'success' threshold: '{kv[1].Trim()}'. Expected an integer.");
+                    success = successVal;
+                    break;
+                case "warning":
+                    if (!int.TryParse(kv[1].Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out var warningVal))
+                        throw new FormatException($"Invalid value for 'warning' threshold: '{kv[1].Trim()}'. Expected an integer.");
+                    warning = warningVal;
+                    break;
+                default:
+                    throw new FormatException($"Unknown threshold key: '{kv[0]}'. Valid keys: success, warning.");
+            }
+        }
+        return (success, warning);
     }
 
     private static string[]? ParseEntityFilter(string? entities)
