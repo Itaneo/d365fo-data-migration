@@ -1,5 +1,6 @@
 namespace Dynamics365ImportData.Tests.Integration.Pipeline;
 
+using Dynamics365ImportData.Comparison;
 using Dynamics365ImportData.DependencySorting;
 using Dynamics365ImportData.Persistence;
 using Dynamics365ImportData.Pipeline;
@@ -78,10 +79,14 @@ public class ExitCodeTests : IDisposable
     private CommandHandler CreateCommandHandler(IMigrationPipelineService mockPipeline)
     {
         var mockResultRepository = Substitute.For<IMigrationResultRepository>();
+        var mockComparisonService = Substitute.For<IErrorComparisonService>();
+        var mockReportService = Substitute.For<IErrorComparisonReportService>();
         return new CommandHandler(
             mockPipeline,
             _queries,
             mockResultRepository,
+            mockComparisonService,
+            mockReportService,
             NullLogger<CommandHandler>.Instance);
     }
 
