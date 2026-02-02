@@ -5,6 +5,7 @@ using Cocona;
 using Dynamics365ImportData.DependencySorting;
 using Dynamics365ImportData.Erp.DataManagementDefinitionGroups;
 using Dynamics365ImportData.Comparison;
+using Dynamics365ImportData.Reporting;
 using Dynamics365ImportData.Fingerprinting;
 using Dynamics365ImportData.Persistence;
 using Dynamics365ImportData.Pipeline;
@@ -71,6 +72,10 @@ public class Program
             // Error Analysis
             _ = services.AddSingleton<IErrorFingerprinter, ErrorFingerprinter>();
             _ = services.AddTransient<IErrorComparisonService, ErrorComparisonService>();
+
+            // Reporting
+            _ = services.AddTransient<IErrorComparisonReportService, ErrorComparisonReportService>();
+            _ = services.AddTransient<IReadinessReportService, ReadinessReportService>();
             _ = services.AddHttpClient<IDynamics365FinanceDataManagementGroups, Dynamics365FinanceDataManagementGroups>(
                     (services, httpClient) => httpClient.Timeout = new TimeSpan(0,
                                                                                 services.GetRequiredService<IOptions<Dynamics365Settings>>().Value.ImportTimeout,
@@ -85,6 +90,8 @@ public class Program
                 .Bind(builder.Configuration.GetSection(nameof(Dynamics365Settings)));
             _ = services.AddOptions<PersistenceSettings>()
                 .Bind(builder.Configuration.GetSection(nameof(PersistenceSettings)));
+            _ = services.AddOptions<ReportSettings>()
+                .Bind(builder.Configuration.GetSection(nameof(ReportSettings)));
             _ = builder.Host
                     .UseSerilog((context, services, configuration) =>
                                 configuration
