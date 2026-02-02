@@ -4,6 +4,7 @@ using Dynamics365ImportData.Comparison;
 using Dynamics365ImportData.DependencySorting;
 using Dynamics365ImportData.Persistence;
 using Dynamics365ImportData.Pipeline;
+using Dynamics365ImportData.Reporting;
 using Dynamics365ImportData.Settings;
 
 using Microsoft.Extensions.Logging;
@@ -81,12 +82,14 @@ public class ExitCodeTests : IDisposable
         var mockResultRepository = Substitute.For<IMigrationResultRepository>();
         var mockComparisonService = Substitute.For<IErrorComparisonService>();
         var mockReportService = Substitute.For<IErrorComparisonReportService>();
+        var mockReadinessService = Substitute.For<IReadinessReportService>();
         return new CommandHandler(
             mockPipeline,
             _queries,
             mockResultRepository,
             mockComparisonService,
             mockReportService,
+            mockReadinessService,
             NullLogger<CommandHandler>.Instance);
     }
 

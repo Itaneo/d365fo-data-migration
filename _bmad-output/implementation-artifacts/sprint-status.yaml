@@ -66,5 +66,5 @@ development_status:
 
   epic-5: in-progress
   5-1-readiness-report-generation: done
-  5-2-readiness-report-cli-command: backlog
+  5-2-readiness-report-cli-command: done
   epic-5-retrospective: optional

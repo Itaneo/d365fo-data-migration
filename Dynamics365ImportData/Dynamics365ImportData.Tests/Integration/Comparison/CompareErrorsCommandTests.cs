@@ -6,6 +6,7 @@ using Dynamics365ImportData.DependencySorting;
 using Dynamics365ImportData.Persistence;
 using Dynamics365ImportData.Persistence.Models;
 using Dynamics365ImportData.Pipeline;
+using Dynamics365ImportData.Reporting;
 using Dynamics365ImportData.Settings;
 
 using Microsoft.Extensions.Logging;
@@ -83,6 +84,7 @@ public class CompareErrorsCommandTests : IDisposable
         var comparison = mockComparison ?? Substitute.For<IErrorComparisonService>();
         var report = mockReport ?? Substitute.For<IErrorComparisonReportService>();
         var resultRepo = Substitute.For<IMigrationResultRepository>();
+        var readinessService = Substitute.For<IReadinessReportService>();
 
         return new CommandHandler(
             pipeline,
@@ -90,6 +92,7 @@ public class CompareErrorsCommandTests : IDisposable
             resultRepo,
             comparison,
             report,
+            readinessService,
             NullLogger<CommandHandler>.Instance);
     }
 
