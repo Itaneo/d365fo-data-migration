@@ -55,16 +55,16 @@ development_status:
 
   epic-3: in-progress
   3-1-cli-entity-selection-flag: done
-  3-2-exit-code-standardization-and-cli-config-overrides: backlog
+  3-2-exit-code-standardization-and-cli-config-overrides: done
   epic-3-retrospective: optional
 
-  epic-4: backlog
-  4-1-result-persistence-and-credential-sanitization: backlog
-  4-2-error-fingerprinting-and-comparison-engine: backlog
-  4-3-error-comparison-report-and-cli-integration: backlog
+  epic-4: in-progress
+  4-1-result-persistence-and-credential-sanitization: done
+  4-2-error-fingerprinting-and-comparison-engine: done
+  4-3-error-comparison-report-and-cli-integration: done
   epic-4-retrospective: optional
 
-  epic-5: backlog
-  5-1-readiness-report-generation: backlog
-  5-2-readiness-report-cli-command: backlog
+  epic-5: in-progress
+  5-1-readiness-report-generation: done
+  5-2-readiness-report-cli-command: done
   epic-5-retrospective: optional
