@@ -3,6 +3,9 @@
 public class Dynamics365Settings
 {
     public string? ClientId { get; set; }
+    public int ExecutionStatusInitialDelaySeconds { get; set; } = 15;
+    public int ExecutionStatusMaxRetries { get; set; } = 5;
+    public int ExecutionStatusRetryDelaySeconds { get; set; } = 5;
     public int ImportTimeout { get; set; } = 60;
     public string? LegalEntityId { get; set; }
     public string? Secret { get; set; }
