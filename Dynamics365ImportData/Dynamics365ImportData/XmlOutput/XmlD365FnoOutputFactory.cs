@@ -48,7 +48,7 @@ internal class XmlD365FnoOutputFactory : XmlPackageOutputFactoryBase
     {
         string partName = queryItem.DefinitionGroupId + (part > 0 ? $"_Part{part}_" : "_") + DateTime.Now.ToString("yyddMM_HHmmss_FFFF");
         (Stream stream, BlobClient blobClient) = await GetBlockBlobSteam(partName, cancellationToken);
-        return await CreateAsync(stream, partName, queryItem, blobClient);
+        return await CreateAsync(stream, partName, queryItem, blobClient, queryItem.DefinitionGroupId);
     }
 
     public async Task<(Stream, BlobClient)> GetBlockBlobSteam(string name, CancellationToken cancellationToken = default)
@@ -87,6 +87,7 @@ internal class XmlD365FnoOutputFactory : XmlPackageOutputFactoryBase
             await Task.Delay(5000, cancellationToken);
             string executionId = await _client.ImportFromPackage(new ImportFromPackageRequest
             {
+                DefinitionGroupId = part.DefinitionGroupId,
                 Execute = true,
                 ExecutionId = part.PartName,
                 LegalEntityId = _legalEntityId,
@@ -156,14 +157,15 @@ internal class XmlD365FnoOutputFactory : XmlPackageOutputFactoryBase
 
     protected override IXmlOutputPart CreatePart(Stream zipStream, Stream outputStream, ZipArchive zip, string partName, params object[] parameters)
     {
-        return parameters.Length != 1
-            ? throw new ArgumentNullException(nameof(parameters), "Should contain one parameter : The Blob client instance.")
+        return parameters.Length != 2
+            ? throw new ArgumentNullException(nameof(parameters), "Should contain two parameters : The Blob client instance and the DefinitionGroupId.")
             : new XmlD365FnoOutputPart(
             zipStream,
             outputStream,
             zip,
             parameters[0] as BlobClient ?? throw new ArgumentNullException(nameof(parameters), "Blob client instance is null."),
             partName,
+            parameters[1] as string ?? throw new ArgumentNullException(nameof(parameters), "DefinitionGroupId is null."),
             async (part, token) => await PostWriteAsync((XmlD365FnoOutputPart)part, token),
             async (part, token) => await GetStateAsync((XmlD365FnoOutputPart)part, token),
             _serviceProvider.GetRequiredService<ILogger<XmlD365FnoOutputPart>>());
