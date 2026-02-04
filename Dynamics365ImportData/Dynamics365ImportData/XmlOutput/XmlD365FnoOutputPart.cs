@@ -16,11 +16,17 @@ public sealed class XmlD365FnoOutputPart : XmlZipOutputPart
         ZipArchive zip,
         BlobClient blobClient,
         string partName,
+        string definitionGroupId,
         Func<IXmlOutputPart, CancellationToken, Task> postProcess,
         Func<IXmlOutputPart, CancellationToken, Task<ExecutionStatus>> getState,
         ILogger<XmlD365FnoOutputPart> logger)
-        : base(stream, fileStream, zip, partName, postProcess, getState, logger) => BlobClient = blobClient;
+        : base(stream, fileStream, zip, partName, postProcess, getState, logger)
+    {
+        BlobClient = blobClient;
+        DefinitionGroupId = definitionGroupId;
+    }
 
     public BlobClient BlobClient { get; }
     public Uri BlobUrl => BlobClient.Uri;
+    public string DefinitionGroupId { get; }
 }
