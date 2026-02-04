@@ -116,22 +116,16 @@ public class SourceQueryCollection
 
     private static string GetManifestFileName(int count, string directory, string? name)
     {
-        name = string.IsNullOrWhiteSpace(name)
+        return string.IsNullOrWhiteSpace(name)
             ? Path.Combine(directory, "Manifest.xml")
             : Path.Combine(directory, name);
-        return File.Exists(name)
-            ? name
-            : throw new Exception($"The manifest file not found in query {count} : {name}");
     }
 
     private static string GetPackageHeaderFileName(int count, string directory, string? name)
     {
-        name = string.IsNullOrWhiteSpace(name)
+        return string.IsNullOrWhiteSpace(name)
             ? Path.Combine(directory, "PackageHeader.xml")
             : Path.Combine(directory, name);
-        return File.Exists(name)
-        ? name
-            : throw new Exception($"The package header file not found in query {count} : {name}");
     }
 
     private static string GetQueryFileName(int count, string directory, string? name, string entityName)

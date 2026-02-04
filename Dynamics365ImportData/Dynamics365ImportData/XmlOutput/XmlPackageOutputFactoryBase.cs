@@ -24,6 +24,11 @@ internal abstract class XmlPackageOutputFactoryBase : IXmlOutputFactory
 
     protected async Task<IXmlOutputPart> CreateAsync(Stream fileStream, string partName, SourceQueryItem queryItem, params object[] parameters)
     {
+        if (!File.Exists(queryItem.ManifestFileName))
+            throw new FileNotFoundException($"Manifest file not found for entity '{queryItem.EntityName}': {queryItem.ManifestFileName}");
+        if (!File.Exists(queryItem.PackageHeaderFileName))
+            throw new FileNotFoundException($"Package header file not found for entity '{queryItem.EntityName}': {queryItem.PackageHeaderFileName}");
+
         var _zip = new ZipArchive(fileStream, ZipArchiveMode.Create);
         _ = _zip.CreateEntryFromFile(queryItem.ManifestFileName, "Manifest.xml", CompressionLevel.SmallestSize);
         _ = _zip.CreateEntryFromFile(queryItem.PackageHeaderFileName, "PackageHeader.xml", CompressionLevel.SmallestSize);
