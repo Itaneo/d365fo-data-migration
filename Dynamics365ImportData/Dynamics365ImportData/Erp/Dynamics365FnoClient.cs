@@ -90,22 +90,24 @@ public abstract class Dynamics365FnoClient
 
 	protected async Task<TResponse> PostRequestAsync<TRequest, TResponse>(string name, TRequest request, CancellationToken cancellationToken = default)
 	{
-		_client.DefaultRequestHeaders.Clear();
-		_client.DefaultRequestHeaders.Add("OData-MaxVersion", "4.0");
-		_client.DefaultRequestHeaders.Add("OData-Version", "4.0");
-		_client.DefaultRequestHeaders.Add("Prefer", "odata.include-annotations = *");
-		_client.DefaultRequestHeaders.Accept.Add(
-			new MediaTypeWithQualityHeaderValue("application/json")
-		);
-		_client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue
-			("Bearer",
-			await AcquireTokenWithSecret(cancellationToken)
-		);
+		string url = $"/{_dataPath}/{_entity}/{_domain}.{name}";
 		var content = JsonContent.Create(request);
 
-		string url = $"/{_dataPath}/{_entity}/{_domain}.{name}";
+		using var requestMessage = new HttpRequestMessage(HttpMethod.Post, url)
+		{
+			Content = content
+		};
+		requestMessage.Headers.Add("OData-MaxVersion", "4.0");
+		requestMessage.Headers.Add("OData-Version", "4.0");
+		requestMessage.Headers.Add("Prefer", "odata.include-annotations = *");
+		requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+		requestMessage.Headers.Authorization = new AuthenticationHeaderValue(
+			"Bearer",
+			await AcquireTokenWithSecret(cancellationToken)
+		);
+
 		HttpResponseMessage response = await _client
-			.PostAsync(url, content, cancellationToken);
+			.SendAsync(requestMessage, cancellationToken);
 		_logger.LogDebug("POST {Url}\nRequest Body : {RequestBody}",
 			url,
 			await content.ReadAsStringAsync(cancellationToken));
