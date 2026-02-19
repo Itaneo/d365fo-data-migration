@@ -255,7 +255,7 @@ internal class MigrationPipelineService : IMigrationPipelineService
                         remaining.Add(t);
                         break;
                 }
-                if ((DateTime.UtcNow - t.StartedTime).TotalMinutes > _timeout && anyTerminalState)
+                if ((DateTime.UtcNow - t.StartedTime).TotalMinutes > _timeout)
                 {
                     _logger.LogError(
                         "Task {PartName} timeout reached. Status={ExecutionStatus}",
