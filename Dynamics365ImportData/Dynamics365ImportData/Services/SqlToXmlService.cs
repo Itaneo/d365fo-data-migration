@@ -37,6 +37,14 @@ internal class SqlToXmlService
             cmd.CommandTimeout = 3600;
             cmd.CommandText = sqlStatement;
             using SqlDataReader reader = await cmd.ExecuteReaderAsync(cancellationToken);
+            var dateColumnIndices = new HashSet<int>();
+            for (int i = 0; i < reader.FieldCount; i++)
+            {
+                if (reader.GetDataTypeName(i) == "date")
+                {
+                    dateColumnIndices.Add(i);
+                }
+            }
             IXmlOutputPart? output = await StartDocumentAsync(outputFactory, source, part++, cancellationToken);
             partNames.Add(output);
             while (await reader.ReadAsync(cancellationToken))
@@ -58,7 +66,14 @@ internal class SqlToXmlService
                     output.Writer.WriteStartAttribute(reader.GetName(i));
                     if (!reader.IsDBNull(i))
                     {
-                        output.Writer.WriteValue(reader.GetValue(i));
+                        if (dateColumnIndices.Contains(i))
+                        {
+                            output.Writer.WriteValue(reader.GetDateTime(i).ToString("yyyy-MM-dd"));
+                        }
+                        else
+                        {
+                            output.Writer.WriteValue(reader.GetValue(i));
+                        }
                     }
                     output.Writer.WriteEndAttribute();
                 }
